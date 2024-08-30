@@ -1,0 +1,47 @@
+version: '3'
+
+services:
+  postgresql_1:
+    image: postgres:16.4
+    restart: always
+    container_name: postgresql_1
+    environment:
+      POSTGRES_DB: yutfut
+      POSTGRES_USER: yutfut
+      POSTGRES_PASSWORD: yutfut
+      PGDATA: "/var/lib/postgresql/data/pgdata"
+    ports:
+      - '5432:5432'
+    volumes:
+      - ./init_db/:/docker-entrypoint-initdb.d/
+      - ../volumes/postgresql_1/:/var/lib/postgresql/data/
+
+  postgresql_2:
+    image: postgres:16.4
+    restart: always
+    container_name: postgresql_2
+    environment:
+      POSTGRES_DB: yutfut
+      POSTGRES_USER: yutfut
+      POSTGRES_PASSWORD: yutfut
+      PGDATA: "/var/lib/postgresql/data/pgdata"
+    ports:
+      - '5433:5432'
+    volumes:
+      - ./init_db/:/docker-entrypoint-initdb.d/
+      - ../volumes/postgresql_2/:/var/lib/postgresql/data/
+
+  clickhouse:
+    image: bitnami/clickhouse:24.8.2
+    restart: always
+    container_name: clickhouse
+    environment:
+      ALLOW_EMPTY_PASSWORD: no
+      CLICKHOUSE_ADMIN_USER: yutfut
+      CLICKHOUSE_ADMIN_PASSWORD: yutfut
+    ports:
+      - "8123:8123"
+      - "9000:9000"
+      - "9440:9440"
+    volumes:
+      - ../volumes/click_house:/var/lib/clickhouse
