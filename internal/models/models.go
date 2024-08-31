@@ -1,0 +1,16 @@
+package models
+
+import "time"
+
+type Client struct {
+	Id              uint64    `db:"id"`
+	Name            string    `db:"name"`
+	Settlement      string    `db:"settlement"`
+	MarginAlgorithm uint8     `db:"margin_algorithm"`
+	Gateway         bool      `db:"gateway"`
+	Vendor          bool      `db:"vendor"`
+	IsActive        bool      `db:"is_active"`
+	IsPro           bool      `db:"is_pro"`
+	IsInterbank     bool      `db:"is_interbank"`
+	CreatedAt       time.Time `db:"create_at"`
+}
