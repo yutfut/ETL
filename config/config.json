@@ -1,0 +1,26 @@
+{
+    "postgres": [
+        {
+            "host": "127.0.0.1",
+            "port": "5432",
+            "username": "yutfut",
+            "password": "yutfut",
+            "database": "yutfut"
+        },
+        {
+            "host": "127.0.0.1",
+            "port": "5433",
+            "username": "yutfut",
+            "password": "yutfut",
+            "database": "yutfut"
+        }
+    ],
+    "clickHouse": {
+        "host": "127.0.0.1",
+        "port": "5432",
+        "database": "yutfut",
+        "username": "yutfut",
+        "password": "yutfut",
+        "debug": false
+    }
+}

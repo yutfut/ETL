@@ -24,7 +24,10 @@ func NewClickHouse(
 }
 
 func (ch *clickHouse) PushButch(ctx context.Context, data []models.Client) error {
-	batch, err := ch.driver.PrepareBatch(ctx, `INSERT INTO client.client`)
+	batch, err := ch.driver.PrepareBatch(
+		ctx,
+		insertBatch,
+	)
 	if err != nil {
 		return err
 	}
