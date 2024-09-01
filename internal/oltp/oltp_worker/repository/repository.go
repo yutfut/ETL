@@ -13,12 +13,12 @@ import (
 type Repository interface {
 	SelectMeta(ctx context.Context) (ReadMeta, error)
 	UpdateMeta(ctx context.Context, request ReadMeta) (ReadMeta, error)
-	SelectByID(ctx context.Context, request ReadMeta) ([]models.Client, error)
-	SelectByUpdateAT(ctx context.Context, request ReadMeta) ([]models.Client, error)
+	SelectByID(ctx context.Context, request uint64) ([]models.Client, error)
+	SelectByUpdateAT(ctx context.Context, request time.Time) ([]models.Client, error)
 }
 
 type repository struct {
-	pgx *pgxpool.Pool
+	pgx    *pgxpool.Pool
 	logger *log.Logger
 }
 
@@ -27,13 +27,13 @@ func NewRepository(
 	logger *log.Logger,
 ) Repository {
 	return &repository{
-		pgx: pgx,
+		pgx:    pgx,
 		logger: logger,
 	}
 }
 
 type ReadMeta struct {
-	LastInsertID uint64 `db:"last_insert_id"`
+	LastInsertID uint64    `db:"last_insert_id"`
 	LastUpdateAT time.Time `db:"last_update_at"`
 }
 
@@ -90,14 +90,14 @@ func (r *repository) UpdateMeta(
 
 func (r *repository) SelectByID(
 	ctx context.Context,
-	request ReadMeta,
+	request uint64,
 ) (
 	[]models.Client, error,
 ) {
 	rows, err := r.pgx.Query(
 		ctx,
 		selectByID,
-		request.LastInsertID,
+		request,
 	)
 	if err != nil {
 		r.logger.Printf("SelectInsert ::: r.pgx.Query ::: %v", err)
@@ -118,14 +118,14 @@ func (r *repository) SelectByID(
 
 func (r *repository) SelectByUpdateAT(
 	ctx context.Context,
-	request ReadMeta,
+	request time.Time,
 ) (
 	[]models.Client, error,
 ) {
 	rows, err := r.pgx.Query(
 		ctx,
 		selectByUpdateAT,
-		request.LastUpdateAT,
+		request,
 	)
 	if err != nil {
 		r.logger.Printf("SelectInsert ::: r.pgx.Query ::: %v", err)

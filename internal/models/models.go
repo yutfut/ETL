@@ -3,7 +3,7 @@ package models
 import "time"
 
 type Client struct {
-	Id              uint64    `db:"id"`
+	ID              uint64    `db:"id"`
 	Name            string    `db:"name"`
 	Settlement      string    `db:"settlement"`
 	MarginAlgorithm uint8     `db:"margin_algorithm"`
@@ -13,5 +13,5 @@ type Client struct {
 	IsPro           bool      `db:"is_pro"`
 	IsInterbank     bool      `db:"is_interbank"`
 	CreateAT        time.Time `db:"create_at"`
-	UpdateAT		time.Time `db:"update_at"`
+	UpdateAT        time.Time `db:"update_at"`
 }
