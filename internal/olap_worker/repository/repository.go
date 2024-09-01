@@ -23,7 +23,10 @@ func NewClickHouse(
 	}
 }
 
-func (ch *clickHouse) PushButch(ctx context.Context, data []models.Client) error {
+func (ch *clickHouse) PushButch(
+	ctx context.Context,
+	request []models.Client,
+) error {
 	batch, err := ch.driver.PrepareBatch(
 		ctx,
 		insertBatch,
@@ -32,11 +35,36 @@ func (ch *clickHouse) PushButch(ctx context.Context, data []models.Client) error
 		return err
 	}
 
-	if err = batch.AppendStruct(data); err != nil {
+	if err = batch.AppendStruct(request); err != nil {
 		return err
 	}
 
 	if err = batch.Send(); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (ch *clickHouse) Update(
+	ctx context.Context,
+	data models.Client,
+) error {
+	if err := ch.driver.Exec(
+		ctx,
+		update,
+		data.ID,
+		data.Name,
+		data.Settlement,
+		data.MarginAlgorithm,
+		data.Gateway,
+		data.Vendor,
+		data.IsActive,
+		data.IsPro,
+		data.IsInterbank,
+		data.CreateAT,
+		data.UpdateAT,
+	); err != nil {
 		return err
 	}
 
