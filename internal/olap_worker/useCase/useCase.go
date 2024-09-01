@@ -2,10 +2,11 @@ package usecase
 
 import (
 	"context"
-	"etl/internal/models"
-	"etl/internal/olap_worker/repository"
 	"log"
 	"time"
+	
+	"etl/internal/models"
+	"etl/internal/olap_worker/repository"
 )
 
 type UseCase interface{}

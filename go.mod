@@ -4,14 +4,15 @@ go 1.22
 
 toolchain go1.22.6
 
-require github.com/jackc/pgx/v5 v5.6.0
+require (
+	github.com/ClickHouse/clickhouse-go/v2 v2.28.1
+	github.com/brianvoe/gofakeit v3.18.0+incompatible
+	github.com/jackc/pgx/v5 v5.6.0
+)
 
 require (
 	github.com/ClickHouse/ch-go v0.61.5 // indirect
-	github.com/ClickHouse/clickhouse-go/v2 v2.28.1 // indirect
 	github.com/andybalholm/brotli v1.1.0 // indirect
-	github.com/brianvoe/gofakeit v3.18.0+incompatible // indirect
-	github.com/brianvoe/gofakeit/v7 v7.0.4 // indirect
 	github.com/go-faster/city v1.0.1 // indirect
 	github.com/go-faster/errors v0.7.1 // indirect
 	github.com/google/uuid v1.6.0 // indirect

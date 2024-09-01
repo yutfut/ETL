@@ -8,6 +8,8 @@
 *.so
 *.dylib
 
+*.csv
+
 # Test binary, built with `go test -c`
 *.test
 
@@ -24,4 +26,4 @@ go.work.sum
 # env file
 .env
 
-volumes
+volumes/

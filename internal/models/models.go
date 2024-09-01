@@ -12,5 +12,6 @@ type Client struct {
 	IsActive        bool      `db:"is_active"`
 	IsPro           bool      `db:"is_pro"`
 	IsInterbank     bool      `db:"is_interbank"`
-	CreatedAt       time.Time `db:"create_at"`
+	CreateAT        time.Time `db:"create_at"`
+	UpdateAT		time.Time `db:"update_at"`
 }
