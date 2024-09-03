@@ -8,7 +8,8 @@ import (
 )
 
 type ClickHouse interface {
-	PushButch(ctx context.Context, data []models.Client) error
+	Insert(ctx context.Context, data []models.Client) error
+	Update(ctx context.Context, request models.Client) error
 }
 
 type clickHouse struct {
@@ -23,7 +24,7 @@ func NewClickHouse(
 	}
 }
 
-func (ch *clickHouse) PushButch(
+func (ch *clickHouse) Insert(
 	ctx context.Context,
 	request []models.Client,
 ) error {
@@ -48,22 +49,22 @@ func (ch *clickHouse) PushButch(
 
 func (ch *clickHouse) Update(
 	ctx context.Context,
-	data models.Client,
+	request models.Client,
 ) error {
 	if err := ch.driver.Exec(
 		ctx,
 		update,
-		data.ID,
-		data.Name,
-		data.Settlement,
-		data.MarginAlgorithm,
-		data.Gateway,
-		data.Vendor,
-		data.IsActive,
-		data.IsPro,
-		data.IsInterbank,
-		data.CreateAT,
-		data.UpdateAT,
+		request.ID,
+		request.Name,
+		request.Settlement,
+		request.MarginAlgorithm,
+		request.Gateway,
+		request.Vendor,
+		request.IsActive,
+		request.IsPro,
+		request.IsInterbank,
+		request.CreateAT,
+		request.UpdateAT,
 	); err != nil {
 		return err
 	}
