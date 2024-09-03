@@ -69,7 +69,7 @@ func (r *repository) UpdateMeta(
 ) (ReadMeta, error) {
 	rows, err := r.pgx.Query(
 		ctx,
-		updateMetaLastInsertID,
+		updateMeta,
 		request.LastInsertID,
 		request.LastUpdateAT,
 	)
@@ -96,7 +96,7 @@ func (r *repository) UpdateMetaLastInsertID(
 ) (ReadMeta, error) {
 	rows, err := r.pgx.Query(
 		ctx,
-		updateMetaLastInsertID,
+		u1,
 		request.LastUpdateAT,
 	)
 	if err != nil {
@@ -124,7 +124,7 @@ func (r *repository) UpdateMetaLastUpdateAT(
 ) (ReadMeta, error) {
 	rows, err := r.pgx.Query(
 		ctx,
-		updateMetaLastUpdateAT,
+		u2,
 		request.LastUpdateAT,
 	)
 	if err != nil {

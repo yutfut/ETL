@@ -18,7 +18,7 @@ const (
 		returning last_insert_id, last_update_at;
 	`
 
-	updateMetaLastInsertID = `
+	u1 = `
 		update client.etl
 		set
 			last_insert_id = $1
@@ -26,7 +26,7 @@ const (
 		returning last_insert_id;
 	`
 
-	updateMetaLastUpdateAT = `
+	u2 = `
 		update client.etl
 		set
     		last_update_at = $1

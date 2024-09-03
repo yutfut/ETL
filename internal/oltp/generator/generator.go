@@ -11,12 +11,12 @@ import (
 	"github.com/jackc/pgx/v5/pgxpool"
 )
 
-type Generator interface{
+type Generator interface {
 	Generate(ctx context.Context, wg *sync.WaitGroup)
 }
 
-type generator struct{
-	pgx *pgxpool.Pool
+type generator struct {
+	pgx    *pgxpool.Pool
 	logger *log.Logger
 }
 
@@ -25,7 +25,7 @@ func NewGenerator(
 	logger *log.Logger,
 ) Generator {
 	return &generator{
-		pgx: pgx,
+		pgx:    pgx,
 		logger: logger,
 	}
 }
@@ -34,15 +34,16 @@ func (g *generator) Generate(
 	ctx context.Context,
 	wg *sync.WaitGroup,
 ) {
+	defer wg.Done()
+
 	updateTicker := time.NewTicker(5 * time.Second)
 	i := 0
 
 	for {
 		select {
-		case <- ctx.Done():
+		case <-ctx.Done():
 			g.logger.Println("Generator done")
-			wg.Done()
-		case <- updateTicker.C:
+		case <-updateTicker.C:
 			if _, err := g.pgx.Exec(
 				ctx, //использовать другой контекст
 				update,
