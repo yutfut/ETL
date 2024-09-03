@@ -13,8 +13,10 @@ import (
 type Repository interface {
 	SelectMeta(ctx context.Context) (ReadMeta, error)
 	UpdateMeta(ctx context.Context, request ReadMeta) (ReadMeta, error)
-	SelectByID(ctx context.Context, request uint64) ([]models.Client, error)
-	SelectByUpdateAT(ctx context.Context, request time.Time) ([]models.Client, error)
+	UpdateMetaLastInsertID(ctx context.Context, request ReadMeta) (ReadMeta, error)
+	UpdateMetaLastUpdateAT(ctx context.Context, request ReadMeta) (ReadMeta, error)
+	SelectByID(ctx context.Context, request uint64) ([]models.OLTPClient, error)
+	SelectByUpdateAT(ctx context.Context, request time.Time) ([]models.OLTPClient, error)
 }
 
 type repository struct {
@@ -67,7 +69,7 @@ func (r *repository) UpdateMeta(
 ) (ReadMeta, error) {
 	rows, err := r.pgx.Query(
 		ctx,
-		updateMeta,
+		updateMetaLastInsertID,
 		request.LastInsertID,
 		request.LastUpdateAT,
 	)
@@ -88,11 +90,67 @@ func (r *repository) UpdateMeta(
 	return response, nil
 }
 
+func (r *repository) UpdateMetaLastInsertID(
+	ctx context.Context,
+	request ReadMeta,
+) (ReadMeta, error) {
+	rows, err := r.pgx.Query(
+		ctx,
+		updateMetaLastInsertID,
+		request.LastUpdateAT,
+	)
+	if err != nil {
+		r.logger.Printf("UpdateMeta ::: r.pgx.Query ::: %v", err)
+		return ReadMeta{}, err
+	}
+
+	response, err := pgx.CollectOneRow(
+		rows,
+		pgx.RowToStructByName[uint64],
+	)
+	if err != nil {
+		r.logger.Printf("UpdateMeta ::: pgx.CollectOneRow ::: %v", err)
+		return ReadMeta{}, err
+	}
+
+	return ReadMeta{
+		LastInsertID: response,
+	}, nil
+}
+
+func (r *repository) UpdateMetaLastUpdateAT(
+	ctx context.Context,
+	request ReadMeta,
+) (ReadMeta, error) {
+	rows, err := r.pgx.Query(
+		ctx,
+		updateMetaLastUpdateAT,
+		request.LastUpdateAT,
+	)
+	if err != nil {
+		r.logger.Printf("UpdateMeta ::: r.pgx.Query ::: %v", err)
+		return ReadMeta{}, err
+	}
+
+	response, err := pgx.CollectOneRow(
+		rows,
+		pgx.RowToStructByName[time.Time],
+	)
+	if err != nil {
+		r.logger.Printf("UpdateMeta ::: pgx.CollectOneRow ::: %v", err)
+		return ReadMeta{}, err
+	}
+
+	return ReadMeta{
+		LastUpdateAT: response,
+	}, nil
+}
+
 func (r *repository) SelectByID(
 	ctx context.Context,
 	request uint64,
 ) (
-	[]models.Client, error,
+	[]models.OLTPClient, error,
 ) {
 	rows, err := r.pgx.Query(
 		ctx,
@@ -101,16 +159,16 @@ func (r *repository) SelectByID(
 	)
 	if err != nil {
 		r.logger.Printf("SelectInsert ::: r.pgx.Query ::: %v", err)
-		return []models.Client{}, err
+		return []models.OLTPClient{}, err
 	}
 
 	response, err := pgx.CollectRows(
 		rows,
-		pgx.RowToStructByName[models.Client],
+		pgx.RowToStructByName[models.OLTPClient],
 	)
 	if err != nil {
 		r.logger.Printf("UpdateMeta ::: pgx.CollectOneRow ::: %v", err)
-		return []models.Client{}, err
+		return []models.OLTPClient{}, err
 	}
 
 	return response, nil
@@ -120,7 +178,7 @@ func (r *repository) SelectByUpdateAT(
 	ctx context.Context,
 	request time.Time,
 ) (
-	[]models.Client, error,
+	[]models.OLTPClient, error,
 ) {
 	rows, err := r.pgx.Query(
 		ctx,
@@ -129,16 +187,16 @@ func (r *repository) SelectByUpdateAT(
 	)
 	if err != nil {
 		r.logger.Printf("SelectInsert ::: r.pgx.Query ::: %v", err)
-		return []models.Client{}, err
+		return []models.OLTPClient{}, err
 	}
 
 	response, err := pgx.CollectRows(
 		rows,
-		pgx.RowToStructByName[models.Client],
+		pgx.RowToStructByName[models.OLTPClient],
 	)
 	if err != nil {
 		r.logger.Printf("UpdateMeta ::: pgx.CollectOneRow ::: %v", err)
-		return []models.Client{}, err
+		return []models.OLTPClient{}, err
 	}
 
 	return response, nil

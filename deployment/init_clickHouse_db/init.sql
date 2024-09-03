@@ -2,6 +2,7 @@ CREATE DATABASE IF NOT EXISTS client;
 
 CREATE TABLE IF NOT EXISTS client.client
 (
+    postgresql_id String,
     id UInt64,
     name String,
     settlement String,

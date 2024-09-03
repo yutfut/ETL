@@ -3,22 +3,26 @@ package usecase
 import (
 	"context"
 	"log"
+	"sync"
 	"time"
 
 	"etl/internal/models"
 	"etl/internal/olap_worker/repository"
 )
 
-type UseCase interface{}
+type UseCase interface {
+	Insert(ctx context.Context, wg *sync.WaitGroup)
+	Update(ctx context.Context, wg *sync.WaitGroup)
+}
 
 type useCase struct {
 	clickHouse repository.ClickHouse
 	logger     *log.Logger
 
-	insertChan chan models.Client
-	updateChan chan models.Client
+	insertChan chan models.OLAPClient
+	updateChan chan models.OLAPClient
 
-	batch     []models.Client
+	batch     []models.OLAPClient
 	batchSize int
 
 	insertTicker *time.Ticker
@@ -27,24 +31,26 @@ type useCase struct {
 func NewUseCase(
 	clickHouse repository.ClickHouse,
 	logger *log.Logger,
-	insertChan chan models.Client,
-	updateChan chan models.Client,
-	insertTicker time.Duration,
+	insertChan chan models.OLAPClient,
+	updateChan chan models.OLAPClient,
 ) UseCase {
 	return &useCase{
 		clickHouse:   clickHouse,
 		logger:       logger,
 		insertChan:   insertChan,
 		updateChan:   updateChan,
-		batch:        make([]models.Client, 1000),
+		batch:        make([]models.OLAPClient, 1000),
 		batchSize:    0,
-		insertTicker: time.NewTicker(insertTicker),
+		insertTicker: time.NewTicker(1 * time.Minute),
 	}
 }
 
 func (u *useCase) Insert(
 	ctx context.Context,
+	wg *sync.WaitGroup,
 ) {
+	defer wg.Done()
+
 	for {
 		select {
 		case <-u.insertTicker.C:
@@ -67,7 +73,7 @@ func (u *useCase) Insert(
 				u.logger.Println(err)
 			} // а не сломается ли это если отменят контекст?
 
-			batch := make([]models.Client, 0, len(u.insertChan))
+			batch := make([]models.OLAPClient, 0, len(u.insertChan))
 
 			for item := range u.insertChan {
 				batch = append(batch, item)
@@ -84,7 +90,10 @@ func (u *useCase) Insert(
 
 func (u *useCase) Update(
 	ctx context.Context,
+	wg *sync.WaitGroup,
 ) {
+	defer wg.Done()
+
 	for {
 		select {
 		case item := <-u.updateChan:

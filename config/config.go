@@ -5,13 +5,14 @@ import (
 	"os"
 )
 
-type Secret struct{
+type Secret struct {
 	Postgres []struct {
-		Host     string `json:"host"`
-		Port     string `json:"port"`
-		Username string `json:"username"`
-		Password string `json:"password"`
-		Database string `json:"database"`
+		Host         string `json:"host"`
+		Port         string `json:"port"`
+		Username     string `json:"username"`
+		Password     string `json:"password"`
+		Database     string `json:"database"`
+		PostgreSQLID string `json:"postgresql_id"`
 	} `json:"postgres"`
 	ClickHouse struct {
 		Host     string `json:"host"`
@@ -19,7 +20,7 @@ type Secret struct{
 		Database string `json:"database"`
 		Username string `json:"username"`
 		Password string `json:"password"`
-		Debug	 bool	`json:"debug"`
+		Debug    bool   `json:"debug"`
 	} `json:"clickHouse"`
 }
 

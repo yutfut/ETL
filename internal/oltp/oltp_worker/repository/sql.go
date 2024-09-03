@@ -13,8 +13,25 @@ const (
 		update client.etl
 		set
 			last_insert_id = $1,
-    		last_update_at = $2
-		where id = 1;
+			last_update_at = $2
+		where id = 1
+		returning last_insert_id, last_update_at;
+	`
+
+	updateMetaLastInsertID = `
+		update client.etl
+		set
+			last_insert_id = $1
+		where id = 1
+		returning last_insert_id;
+	`
+
+	updateMetaLastUpdateAT = `
+		update client.etl
+		set
+    		last_update_at = $1
+		where id = 1
+		returning last_update_at;
 	`
 
 	selectByID = `
