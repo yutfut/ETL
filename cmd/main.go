@@ -129,6 +129,9 @@ func main() {
 	<-ctx.Done()
 	stop()
 
+	close(insertChan)
+	close(updateChan)
+
 	wg.Wait()
 
 	log.Println("main done")

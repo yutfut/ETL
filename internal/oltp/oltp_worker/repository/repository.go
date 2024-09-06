@@ -39,6 +39,14 @@ type ReadMeta struct {
 	LastUpdateAT time.Time `db:"last_update_at"`
 }
 
+type ReadID struct {
+	LastInsertID uint64 `db:"last_insert_id"`
+}
+
+type ReadTime struct {
+	LastUpdateAT time.Time `db:"last_update_at"`
+}
+
 func (r *repository) SelectMeta(
 	ctx context.Context,
 ) (ReadMeta, error) {
@@ -106,7 +114,7 @@ func (r *repository) UpdateMetaLastInsertID(
 
 	response, err := pgx.CollectOneRow(
 		rows,
-		pgx.RowToStructByName[uint64],
+		pgx.RowToStructByName[ReadID],
 	)
 	if err != nil {
 		r.logger.Printf("UpdateMeta ::: pgx.CollectOneRow ::: %v", err)
@@ -114,7 +122,7 @@ func (r *repository) UpdateMetaLastInsertID(
 	}
 
 	return ReadMeta{
-		LastInsertID: response,
+		LastInsertID: response.LastInsertID,
 	}, nil
 }
 
@@ -134,7 +142,7 @@ func (r *repository) UpdateMetaLastUpdateAT(
 
 	response, err := pgx.CollectOneRow(
 		rows,
-		pgx.RowToStructByName[time.Time],
+		pgx.RowToStructByName[ReadTime],
 	)
 	if err != nil {
 		r.logger.Printf("UpdateMeta ::: pgx.CollectOneRow ::: %v", err)
@@ -142,7 +150,7 @@ func (r *repository) UpdateMetaLastUpdateAT(
 	}
 
 	return ReadMeta{
-		LastUpdateAT: response,
+		LastUpdateAT: response.LastUpdateAT,
 	}, nil
 }
 

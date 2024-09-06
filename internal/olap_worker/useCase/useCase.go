@@ -75,6 +75,7 @@ func (u *useCase) Insert(
 			}
 
 			u.logger.Println("insert gracefully shutdown done")
+			return
 		default:
 			select {
 			case <-u.insertTicker.C:
@@ -122,6 +123,7 @@ func (u *useCase) Update(
 			}
 
 			u.logger.Println("update gracefully shutdown done")
+			return
 		default:
 			select {
 			case item := <-u.updateChan:
