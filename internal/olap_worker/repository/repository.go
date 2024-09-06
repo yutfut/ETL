@@ -34,16 +34,20 @@ func (ch *clickHouse) Insert(
 ) error {
 	batch, err := ch.driver.PrepareBatch(
 		ctx,
-		insertBatch,
+		InsertBatch,
 	)
 	if err != nil {
 		ch.logger.Println(err)
 		return err
 	}
 
-	if err = batch.AppendStruct(request); err != nil {
-		ch.logger.Println(err)
-		return err
+	for _, item := range request {
+		if err = batch.AppendStruct(
+			&item,
+		); err != nil {
+			ch.logger.Println(err)
+			return err
+		}
 	}
 
 	if err = batch.Send(); err != nil {
@@ -61,6 +65,7 @@ func (ch *clickHouse) Update(
 	if err := ch.driver.Exec(
 		ctx,
 		update,
+		request.PostgreSQLID,
 		request.ID,
 		request.Name,
 		request.Settlement,
@@ -70,7 +75,6 @@ func (ch *clickHouse) Update(
 		request.IsActive,
 		request.IsPro,
 		request.IsInterbank,
-		request.CreateAT,
 		request.UpdateAT,
 	); err != nil {
 		ch.logger.Println(err)

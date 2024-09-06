@@ -53,25 +53,13 @@ func (u *useCase) Insert(
 
 	for {
 		select {
-		case <-u.insertTicker.C:
-			if err := u.clickHouse.Insert(ctx, u.batch); err != nil {
-				u.logger.Println(err)
-			} // а не сломается ли это если отменят контекст?
-			u.batchSize = 0
-		case item := <-u.insertChan:
-			u.batch[u.batchSize] = item
-			u.batchSize++
-
-			if u.batchSize >= cap(u.batch) {
-				if err := u.clickHouse.Insert(ctx, u.batch); err != nil {
-					u.logger.Println(err)
-				} // а не сломается ли это если отменят контекст?
-				u.batchSize = 0
-			}
 		case <-ctx.Done():
-			if err := u.clickHouse.Insert(ctx, u.batch); err != nil {
+			if err := u.clickHouse.Insert(
+				context.Background(),
+				u.batch[0:u.batchSize],
+			); err != nil {
 				u.logger.Println(err)
-			} // а не сломается ли это если отменят контекст?
+			}
 
 			batch := make([]models.OLAPClient, 0, len(u.insertChan))
 
@@ -79,11 +67,38 @@ func (u *useCase) Insert(
 				batch = append(batch, item)
 			}
 
-			if err := u.clickHouse.Insert(ctx, batch); err != nil {
+			if err := u.clickHouse.Insert(
+				context.Background(),
+				u.batch[0:u.batchSize],
+			); err != nil {
 				u.logger.Println(err)
-			} // а не сломается ли это если отменят контекст?
+			}
 
 			u.logger.Println("insert gracefully shutdown done")
+		default:
+			select {
+			case <-u.insertTicker.C:
+				if err := u.clickHouse.Insert(
+					context.Background(), //todo: thinking
+					u.batch[0:u.batchSize],
+				); err != nil {
+					u.logger.Println(err)
+				}
+				u.batchSize = 0
+			case item := <-u.insertChan:
+				u.batch[u.batchSize] = item
+				u.batchSize++
+
+				if u.batchSize >= cap(u.batch) {
+					if err := u.clickHouse.Insert(
+						context.Background(), //todo: thinking
+						u.batch[0:u.batchSize],
+					); err != nil {
+						u.logger.Println(err)
+					}
+					u.batchSize = 0
+				}
+			}
 		}
 	}
 }
@@ -96,18 +111,28 @@ func (u *useCase) Update(
 
 	for {
 		select {
-		case item := <-u.updateChan:
-			if err := u.clickHouse.Update(ctx, item); err != nil {
-				u.logger.Println(err)
-			} // а не сломается ли это если отменят контекст?
 		case <-ctx.Done():
 			for item := range u.updateChan {
-				if err := u.clickHouse.Update(ctx, item); err != nil {
+				if err := u.clickHouse.Update(
+					context.Background(),
+					item,
+				); err != nil {
 					u.logger.Println(err)
-				} // а не сломается ли это если отменят контекст?
+				}
 			}
 
 			u.logger.Println("update gracefully shutdown done")
+		default:
+			select {
+			case item := <-u.updateChan:
+				if err := u.clickHouse.Update(
+					context.Background(),
+					item,
+				); err != nil {
+					u.logger.Println(err)
+					u.updateChan <- item
+				}
+			}
 		}
 	}
 }

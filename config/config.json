@@ -11,8 +11,8 @@
     ],
     "clickHouse": {
         "host": "127.0.0.1",
-        "port": "5432",
-        "database": "yutfut",
+        "port": "9000",
+        "database": "client",
         "username": "yutfut",
         "password": "yutfut",
         "debug": false

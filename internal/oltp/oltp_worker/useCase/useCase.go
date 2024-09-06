@@ -59,7 +59,9 @@ func (u *useCase) Start(
 	ctx context.Context,
 	wg *sync.WaitGroup,
 ) {
-	meta, err := u.repository.SelectMeta(ctx)
+	meta, err := u.repository.SelectMeta(
+		context.Background(),
+	)
 	if err != nil {
 		u.logger.Println("Start ::: u.repository.SelectMeta ::: %v", err)
 	}
@@ -68,7 +70,10 @@ func (u *useCase) Start(
 	u.LastUpdateAT = meta.LastUpdateAT
 
 	if u.LastInsertID == 0 {
-		response, errSelectByID := u.repository.SelectByID(ctx, u.LastInsertID)
+		response, errSelectByID := u.repository.SelectByID(
+			context.Background(),
+			u.LastInsertID,
+		)
 		if errSelectByID != nil {
 			u.logger.Println("Start ::: u.repository.SelectByID ::: %v", errSelectByID)
 		}
@@ -105,7 +110,7 @@ func (u *useCase) Start(
 		u.LastUpdateAT = lastUpdateAT
 
 		_, errUpdateMeta := u.repository.UpdateMeta(
-			ctx,
+			context.Background(),
 			repository.ReadMeta{
 				LastInsertID: lastInsertID,
 				LastUpdateAT: lastUpdateAT,
@@ -135,10 +140,13 @@ func (u *useCase) insert(
 	for {
 		select {
 		case <-ctx.Done():
-			u.logger.Println("SelectNew Done")
+			u.logger.Println("insert Done")
 			return
 		case <-u.newTicker.C:
-			response, errSelectByID := u.repository.SelectByID(ctx, u.LastInsertID)
+			response, errSelectByID := u.repository.SelectByID(
+				context.Background(),
+				u.LastInsertID,
+			)
 			if errSelectByID != nil {
 				u.logger.Println("Start ::: u.repository.SelectByID ::: %v", errSelectByID)
 			}
@@ -146,7 +154,7 @@ func (u *useCase) insert(
 			var lastInsertID uint64 = 0
 
 			for _, item := range response {
-				if item.ID > lastInsertID {
+				if lastInsertID < item.ID {
 					lastInsertID = item.ID
 				}
 
@@ -169,7 +177,7 @@ func (u *useCase) insert(
 			u.LastInsertID = lastInsertID
 
 			_, errUpdateMetaLastInsertID := u.repository.UpdateMetaLastInsertID(
-				ctx,
+				context.Background(),
 				repository.ReadMeta{
 					LastInsertID: lastInsertID,
 				},
@@ -192,12 +200,19 @@ func (u *useCase) update(
 	for {
 		select {
 		case <-ctx.Done():
-			u.logger.Println("SelectNew Done")
+			u.logger.Println("update Done")
 			return
 		case <-u.updateTicker.C:
-			response, errSelectByID := u.repository.SelectByUpdateAT(ctx, u.LastUpdateAT)
+			response, errSelectByID := u.repository.SelectByUpdateAT(
+				context.Background(),
+				u.LastUpdateAT,
+			)
 			if errSelectByID != nil {
-				u.logger.Println("Start ::: u.repository.SelectByID ::: %v", errSelectByID)
+				u.logger.Println("update ::: u.repository.SelectByUpdateAT ::: %v", errSelectByID)
+			}
+
+			if len(response) == 0 {
+				continue
 			}
 
 			lastUpdateAT := oltp_worker.StartTime
@@ -226,13 +241,13 @@ func (u *useCase) update(
 			u.LastUpdateAT = lastUpdateAT
 
 			_, err := u.repository.UpdateMetaLastUpdateAT(
-				ctx,
+				context.Background(),
 				repository.ReadMeta{
 					LastUpdateAT: lastUpdateAT,
 				},
 			)
 			if err != nil {
-				u.logger.Println("Start ::: u.repository.UpdateMetaLastUpdateAT ::: %v", err)
+				u.logger.Println("update ::: u.repository.UpdateMetaLastUpdateAT ::: %v", err)
 				return
 			}
 

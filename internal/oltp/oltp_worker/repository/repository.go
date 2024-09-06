@@ -97,7 +97,7 @@ func (r *repository) UpdateMetaLastInsertID(
 	rows, err := r.pgx.Query(
 		ctx,
 		u1,
-		request.LastUpdateAT,
+		request.LastInsertID,
 	)
 	if err != nil {
 		r.logger.Printf("UpdateMeta ::: r.pgx.Query ::: %v", err)

@@ -16,7 +16,7 @@ type ClickHouse struct {
 	Database string `json:"database"`
 	Username string `json:"username"`
 	Password string `json:"password"`
-	Debug	 bool	`json:"debug"`
+	Debug    bool   `json:"debug"`
 }
 
 func Connect(
@@ -68,6 +68,10 @@ func Connect(
 		},
 	})
 	if err != nil {
+		return nil, err
+	}
+
+	if err = conn.Ping(context.Background()); err != nil {
 		return nil, err
 	}
 

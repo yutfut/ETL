@@ -16,4 +16,4 @@ CREATE TABLE IF NOT EXISTS client.client
     update_at timestamp
 )
 ENGINE = MergeTree()
-ORDER BY (id)
+ORDER BY (id);

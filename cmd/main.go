@@ -60,8 +60,8 @@ func main() {
 		).Generate(ctx, wg)
 	}
 
-	insertCahn := make(chan models.OLAPClient, 10)
-	updateCahn := make(chan models.OLAPClient, 10)
+	insertChan := make(chan models.OLAPClient, 10000)
+	updateChan := make(chan models.OLAPClient, 10000)
 
 	for _, s := range secret.Postgres {
 		postgresPool, err := postgres.NewPostgresPool(
@@ -87,8 +87,8 @@ func main() {
 			s.PostgreSQLID,
 			postgresRepository,
 			logger,
-			insertCahn,
-			updateCahn,
+			insertChan,
+			updateChan,
 		)
 
 		ptUseCase.Start(ctx, wg)
@@ -116,8 +116,8 @@ func main() {
 	apUseCase := olapUseCase.NewUseCase(
 		clickhouseRepository,
 		logger,
-		insertCahn,
-		updateCahn,
+		insertChan,
+		updateChan,
 	)
 
 	wg.Add(2)

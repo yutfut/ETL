@@ -1,7 +1,7 @@
 package repository
 
 const (
-	insertBatch = `
+	InsertBatch = `
 	INSERT INTO client.client
 	`
 
@@ -16,7 +16,7 @@ const (
 		is_active = $8,
 		is_pro = $9,
 		is_interbank = $10,
-		update_at = $11,
+		update_at = $11
 	where postgresql_id = $1 and id = $2;
 	`
 )

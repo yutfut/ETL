@@ -43,33 +43,37 @@ func (g *generator) Generate(
 		select {
 		case <-ctx.Done():
 			g.logger.Println("Generator done")
-		case <-updateTicker.C:
-			if _, err := g.pgx.Exec(
-				ctx, //использовать другой контекст
-				update,
-				gofakeit.Name(),
-				rand.IntN(100),
-			); err != nil {
-				g.logger.Println(err)
-			}
+			return
 		default:
-			if _, err := g.pgx.Exec(
-				ctx, //использовать другой контекст
-				insert,
-				gofakeit.Name(),
-				gofakeit.Currency().Short,
-				gofakeit.Uint8(),
-				gofakeit.Bool(),
-				gofakeit.Bool(),
-				gofakeit.Bool(),
-				gofakeit.Bool(),
-				gofakeit.Bool(),
-			); err != nil {
-				g.logger.Println(err)
-			} else {
-				i++
+			select {
+			case <-updateTicker.C:
+				if _, err := g.pgx.Exec(
+					context.Background(),
+					update,
+					gofakeit.Name(),
+					rand.IntN(i),
+				); err != nil {
+					g.logger.Println(err)
+				}
+			default:
+				if _, err := g.pgx.Exec(
+					context.Background(),
+					insert,
+					gofakeit.Name(),
+					gofakeit.Currency().Short,
+					gofakeit.Uint8(),
+					gofakeit.Bool(),
+					gofakeit.Bool(),
+					gofakeit.Bool(),
+					gofakeit.Bool(),
+					gofakeit.Bool(),
+				); err != nil {
+					g.logger.Println(err)
+				} else {
+					i++
+				}
 			}
 		}
-		time.Sleep(time.Second)
+		time.Sleep(1 * time.Second)
 	}
 }
